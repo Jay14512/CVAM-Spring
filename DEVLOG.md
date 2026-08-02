@@ -29,3 +29,55 @@
 3. **Database Security Layer**:
     * Introduce the MySQL database engine dependencies without violating credential exposure guidelines by configuring
       local IntelliJ environment variables (`${DB_USERNAME}`).
+
+## Session 2 — August 2, 2026
+
+### 📌 Current State & Accomplishments
+
+Today, the CVAM application made the leap from a static, in-memory reader into an interactive, multi-layered REST API
+with an active database connection pool.
+
+1. **Dynamic Routing & Mapping**:
+    * Resolved a `405 Method Not Allowed` routing conflict by consolidating class-level and method-level mappings.
+    * Successfully established an active `@PostMapping` endpoint to listen for inbound internet payload traffic.
+
+2. **Decoupled Architecture with DTOs**:
+    * Implemented the **Data Transfer Object (DTO) Pattern** by designing `AppointmentRequest`.
+    * **Why?** This elegantly separates wide-open, mutable web JSON formatting from our core self-protecting domain
+      models, preserving their strict `final` field immutability and constructor validation guard rails.
+
+3. **IntelliJ HTTP Client Scripting**:
+    * Initialized an isolated `test.http` workspace file.
+    * Successfully executed simulated browser payloads to prove end-to-end routing validation, verifying that the
+      embedded Jackson library accurately maps JSON data into Java objects.
+
+4. **Production-Ready Persistence Setup (`pom.xml`)**:
+    * Cleaned up foundational environment dependencies. Upgraded from low-level JDBC to full object-relational mapping
+      capabilities via `spring-boot-starter-data-jpa`.
+    * Stabilized development targets by aligning the Maven parent framework runtime tracking parameters.
+
+5. **Stateful Database Connection Pool & Secrets Insulation**:
+    * Configured `application.properties` to cleanly point to a custom local schema database instance (`cvam_registry`).
+    * Leveraged modern environment placeholders (`${DB_USERNAME}` / `${DB_PASSWORD}`) mapped to **IntelliJ Operating
+      System Run Configurations**. This keeps production database secrets 100% hidden and completely secure from public
+      GitHub leakage.
+    * Booted the server to a flawless connection status, launching the stateful background database connection manager
+      engine automatically.
+
+---
+
+### 🚀 Next Session — Pick Up Here
+
+**Milestone 2: The Object-Relational Database Engine**.
+
+1. **Transforming Models to Managed Entities- write Our First Database `@Entity` Rules**:
+    * Decorate our immutable domain models (`User`, `Citizen`, `Doctor`) with Hibernate annotations (`@Entity`,
+      `@Table`, `@Id`).
+    * Learn how to resolve the ultimate Java framework paradox: satisfying Hibernate’s structural requirement for an
+      empty, no-arguments constructor without breaking our strict domain validation guard rails.
+2. **Implement the Automated Repository Layer**:
+    * Create automated interface files extending `JpaRepository` to completely replace standard Java `ArrayList`
+      containers.
+3. **Bring the System Live**:
+    * Open phpMyAdmin/IntelliJ Database view to watch Hibernate read our Java files and automatically build out the
+      physical SQL tables inside your local MySQL server.
