@@ -1,17 +1,18 @@
 package com.cvam.cvam_v2_spring.controller;
 
+import com.cvam.cvam_v2_spring.dto.AppointmentRequest;
 import com.cvam.cvam_v2_spring.model.Appointment;
 import com.cvam.cvam_v2_spring.model.Citizen;
 import com.cvam.cvam_v2_spring.model.Doctor;
 import com.cvam.cvam_v2_spring.service.AppointmentService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api/appointments")
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
@@ -21,7 +22,7 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    @GetMapping("/api/appointments")
+    @GetMapping
     public List<Appointment> getAllAppointments() {
         Citizen citizen = new Citizen(
                 "Luigi",
@@ -53,4 +54,34 @@ public class AppointmentController {
 
         return appointmentService.getAppointments();
     }
+
+    @PostMapping //This listens for HTTP POST requests to /api/appointments
+    public String bookNewAppointment(@RequestBody AppointmentRequest request) {
+        //@RequestBody tells Spring to parse incoming JSON directly into an Appointment object
+        //1. The DTO caught the flat data from the web.
+        //2. We recunstruct the deep, valid domain objects using the DTO data,
+        Citizen citizen = new Citizen(
+                "Luigi", "Verdi", request.getFiscalCode(),
+                "luigi@verdi.com", "+3928974157", java.time.LocalDate.of(1987, 9, 28)
+        );
+
+        Doctor doctor = new Doctor(
+                "Francesca", "Neri", "NRIFNC80A01H501Z",
+                "francesca@dottore.it", request.getDoctorId()
+        );
+
+        //3. This triggers the self-protecting constructor guards!
+        Appointment cleanAppointment = new Appointment(
+                request.getAppointmentId(),
+                citizen,
+                doctor,
+                request.getDateTime(),
+                request.getVaccineType()
+        );
+
+        //4. Pass the pristine, fully validated model to the service engine
+        appointmentService.bookAppointment(cleanAppointment);
+        return "Appointment booked successfully with ID: " + cleanAppointment.getAppointmentId();
+    }
+
 }

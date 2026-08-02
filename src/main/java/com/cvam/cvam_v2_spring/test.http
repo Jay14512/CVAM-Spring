@@ -1,0 +1,14 @@
+### Test 1: Book a New Valid Appointment
+POST http://localhost:8080/api/appointments
+Content-Type: application/json
+
+{
+  "appointmentId": "APPT-9999",
+  "fiscalCode": "VRDLGU75A01H501Z",
+  "doctorId": "556988",
+  "dateTime": "2026-08-15T14:00:00",
+  "vaccineType": "Moderna"
+}
+
+### Test 2: Fetch All Appointments to Verify
+GET http://localhost:8080/api/appointments
