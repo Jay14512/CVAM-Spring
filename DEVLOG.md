@@ -81,3 +81,55 @@ with an active database connection pool.
 3. **Bring the System Live**:
     * Open phpMyAdmin/IntelliJ Database view to watch Hibernate read our Java files and automatically build out the
       physical SQL tables inside your local MySQL server.
+
+## Session 3 — August 3, 2026
+
+### 📌 Current State & Accomplishments
+
+Today focused on understanding and stabilizing the JPA entity model design decisions.
+
+1. **Inheritance Strategy Decision**:
+    * Chosen direction: `@MappedSuperclass` for `User` as the shared base for `Citizen`, `Doctor`, and `Staff`.
+    * Clarified why this fits current architecture: shared fields without requiring a standalone `users` table.
+
+2. **Entity Lifecycle Rules Clarified**:
+    * Documented the JPA constructor pattern:
+      * `protected` no-arg constructor for Hibernate
+      * validating public constructor for application-level guard rails
+    * Confirmed that entity-managed fields should not be `final` when using standard JPA/Hibernate hydration.
+
+3. **Relationship Mapping Foundation**:
+    * Clarified the mapping split:
+      * scalar fields (`String`, `LocalDate`, etc.) -> `@Column`
+      * entity references (`Doctor`, `Citizen`) -> relationship annotations (`@ManyToOne`, `@JoinColumn`, etc.)
+    * Started converting `Staff` and `Appointment` toward object-reference relationship mapping.
+
+4. **Uniqueness vs Identity Model Locked In**:
+    * Confirmed primary key strategy: technical DB identity via `Long id` + `@Id`.
+    * Confirmed business uniqueness strategy as separate constraints (for fields like `fiscalCode`, `doctorId`,
+      `staffCode`, `appointmentId`) instead of forcing uniqueness on unrelated fields like `birthDate`.
+
+---
+
+### 🚀 Next Session — Pick Up Here (Tomorrow)
+
+**Milestone 3: Finalize Entity Integrity + Repository Persistence**
+
+1. **Complete and Validate Entity Compilation Rules**:
+    * Ensure every `@Entity` has:
+      * `@Id`
+      * `protected` no-arg constructor
+      * valid field types/getters for JPA mapping
+    * Fix any remaining type/signature mismatches (especially around relationship fields and getters).
+
+2. **Apply Constraints at the Correct Layer**:
+    * Add definitive `@Column(nullable = false, unique = true)` constraints only to true business-unique fields.
+    * Keep non-unique domain attributes (like birth date) as required columns without uniqueness constraints.
+
+3. **Finalize Relationship Mappings**:
+    * Convert remaining FK-like scalar references to object relationships where needed (`@ManyToOne` + `@JoinColumn`).
+    * Verify that `Appointment` references to `Citizen` and `Doctor` are correctly mapped as associations.
+
+4. **Introduce Repository Layer + First DB-Backed Flow**:
+    * Create first `JpaRepository` interfaces for core entities.
+    * Replace one in-memory lookup path with repository-backed persistence to prove end-to-end DB integration.
