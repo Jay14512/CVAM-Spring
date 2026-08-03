@@ -1,12 +1,27 @@
 package com.cvam.cvam_v2_spring.model;
 
 
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "staff")
 public class Staff extends User {
-    private final String staffCode;
-    private final String doctorId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Staff(String firstName, String lastName, String fiscalCode, String email, String staffCode, String doctorId) {
+    @Column(nullable = false, unique = true)
+    private String staffCode;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
+
+    protected Staff() {
+        //Required by JPA
+    }
+
+    public Staff(String firstName, String lastName, String fiscalCode, String email, String staffCode, Doctor doctor) {
         super(firstName, lastName, fiscalCode, email);
 
         //VALIDATION
@@ -16,21 +31,25 @@ public class Staff extends User {
         }
 
         //Doctor ID
-        if (doctorId == null || doctorId.isEmpty()) {
+        if (doctor == null) {
             throw new IllegalArgumentException("Doctor ID is required.");
         }
 
         this.staffCode = staffCode;
-        this.doctorId = doctorId;
+        this.doctor = doctor;
 
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getStaffCode() {
         return staffCode;
     }
 
-    public String getDoctorId() {
-        return doctorId;
+    public Doctor getDoctor() {
+        return doctor;
     }
 
 }

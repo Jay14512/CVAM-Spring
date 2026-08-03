@@ -1,11 +1,18 @@
 package com.cvam.cvam_v2_spring.model;
 
 
+import jakarta.persistence.MappedSuperclass;
+
+@MappedSuperclass
 public abstract class User {
-    private final String firstName;
-    private final String lastName;
-    private final String fiscalCode;
-    private final String email;
+    private String firstName;
+    private String lastName;
+    private String fiscalCode;
+    private String email;
+
+    protected User() {
+        //for JPA
+    }
 
     public User(String firstName, String lastName, String fiscalCode, String email) {
 

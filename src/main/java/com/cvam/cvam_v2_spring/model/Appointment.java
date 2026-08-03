@@ -1,9 +1,13 @@
 package com.cvam.cvam_v2_spring.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @SuppressWarnings({"ClassCanBeRecord"})
 
+@Entity
+@Table(name = "appointments")
 public class Appointment {
 
     /**
@@ -11,10 +15,20 @@ public class Appointment {
      * Assumption: Handled as case-insensitive alphanumeric strings (e.g., "APPT001").
      * Uniqueness is strictly enforced at the service registry layer.
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private final String appointmentId;
-    private final Citizen citizen;
-    private final Doctor doctor;
+    @Column(nullable = false, unique = true)
+    private String appointmentId;
+
+    @ManyToOne
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private Citizen citizen;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private Doctor doctor;
 
     /**
      * The scheduled date and time for the vaccination.
@@ -22,8 +36,15 @@ public class Appointment {
      * Time zone offsets are omitted.
      */
 
-    private final LocalDateTime dateTime;
-    private final String vaccineType;
+    @Column(nullable = false)
+    private LocalDateTime dateTime;
+
+    @Column(nullable = false)
+    private String vaccineType;
+
+    protected Appointment() {
+        //for JPA
+    }
 
     public Appointment(String appointmentId, Citizen citizen, Doctor doctor, LocalDateTime dateTime, String vaccineType) {
         //VALIDATION
