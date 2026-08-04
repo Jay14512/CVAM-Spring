@@ -7,8 +7,8 @@
 * **Clean Spring Initializr Foundation**: Configured a Maven-based Java Spring Boot application with `Spring Web` and
   `Spring Boot Actuator` dependencies.
 * **Manual Model Migration**: Re-typed all five self-protecting domain models (`User`, `Appointment`, `CitizenProfile`,
-  `DoctorProfile`, and `StaffProfile`) into the singular `com.cvam.cvam_v2_spring.model` package, preserving strict final field
-  immutability and guard-clause validations.
+  `DoctorProfile`, and `StaffProfile`) into the singular `com.cvam.cvam_v2_spring.model` package, preserving strict
+  final field immutability and guard-clause validations.
 * **Upgraded Layered Architecture**:
     * Migrated the old `AppointmentService` logic into a managed Spring `@Service` bean using the singular `service`
       package.
@@ -71,7 +71,8 @@ with an active database connection pool.
 **Milestone 2: The Object-Relational Database Engine**.
 
 1. **Transforming Models to Managed Entities- write Our First Database `@Entity` Rules**:
-    * Decorate our immutable domain models (`User`, `CitizenProfile`, `DoctorProfile`) with Hibernate annotations (`@Entity`,
+    * Decorate our immutable domain models (`User`, `CitizenProfile`, `DoctorProfile`) with Hibernate annotations
+      (`@Entity`,
       `@Table`, `@Id`).
     * Learn how to resolve the ultimate Java framework paradox: satisfying Hibernate’s structural requirement for an
       empty, no-arguments constructor without breaking our strict domain validation guard rails.
@@ -89,19 +90,21 @@ with an active database connection pool.
 Today focused on understanding and stabilizing the JPA entity model design decisions.
 
 1. **Inheritance Strategy Decision**:
-    * Chosen direction: `@MappedSuperclass` for `User` as the shared base for `CitizenProfile`, `DoctorProfile`, and `StaffProfile`.
+    * Chosen direction: `@MappedSuperclass` for `User` as the shared base for `CitizenProfile`, `DoctorProfile`, and
+      `StaffProfile`.
     * Clarified why this fits current architecture: shared fields without requiring a standalone `users` table.
 
 2. **Entity Lifecycle Rules Clarified**:
     * Documented the JPA constructor pattern:
-      * `protected` no-arg constructor for Hibernate
-      * validating public constructor for application-level guard rails
+        * `protected` no-arg constructor for Hibernate
+        * validating public constructor for application-level guard rails
     * Confirmed that entity-managed fields should not be `final` when using standard JPA/Hibernate hydration.
 
 3. **Relationship Mapping Foundation**:
     * Clarified the mapping split:
-      * scalar fields (`String`, `LocalDate`, etc.) -> `@Column`
-      * entity references (`DoctorProfile`, `CitizenProfile`) -> relationship annotations (`@ManyToOne`, `@JoinColumn`, etc.)
+        * scalar fields (`String`, `LocalDate`, etc.) -> `@Column`
+        * entity references (`DoctorProfile`, `CitizenProfile`) -> relationship annotations (`@ManyToOne`,
+          `@JoinColumn`, etc.)
     * Started converting `StaffProfile` and `Appointment` toward object-reference relationship mapping.
 
 4. **Uniqueness vs Identity Model Locked In**:
@@ -117,9 +120,9 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 
 1. **Complete and Validate Entity Compilation Rules**:
     * Ensure every `@Entity` has:
-      * `@Id`
-      * `protected` no-arg constructor
-      * valid field types/getters for JPA mapping
+        * `@Id`
+        * `protected` no-arg constructor
+        * valid field types/getters for JPA mapping
     * Fix any remaining type/signature mismatches (especially around relationship fields and getters).
 
 2. **Apply Constraints at the Correct Layer**:
@@ -133,3 +136,45 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 4. **Introduce Repository Layer + First DB-Backed Flow**:
     * Create first `JpaRepository` interfaces for core entities.
     * Replace one in-memory lookup path with repository-backed persistence to prove end-to-end DB integration.
+
+## Session 4 — August 4, 2026
+
+### 📌 Current State & Accomplishments
+
+Today's goal was to transition the application from an in-memory Core Java prototype into a persistent, database-backed
+Spring Boot application using **Spring Data JPA** and **MySQL**.
+
+1. **Moved Away from Subclass Inheritance**:
+    * Realized that using class inheritance (`extends User`) breaks in real-world scenarios (e.g., a physical person
+      cannot be two distinct Java objects if they are both a staff member and a patient).
+    * Refactored the core domain models from inheritance to **Composition Over Inheritance**.
+
+2. **Centralized Core Identity (`User` Entity)**:
+    * Established `User` as a concrete, central hub entity holding universal human traits: `firstName`, `lastName`,
+      `fiscalCode`, `email`, `phoneNumber`, and `birthDate`.
+    * Enforced strict **database-level unique constraints** on `fiscalCode` and `email`.
+
+3. **Introduced Role Profiles**:
+    * Created specialized, decoupled profile entities (`CitizenProfile`, `DoctorProfile`, `StaffProfile`) that map back
+      to the unique `User` identity using `@OneToOne` and `@ManyToOne` relationships.
+    * Added an optional, nullable `officePhoneNumber` (direct extension line) to `DoctorProfile` to support realistic
+      workplace workflows.
+    * Designed `StaffProfile` using composition, cleanly allowing a single staff member to hold multi-job contracts
+      under different doctors without breaking database uniqueness constraints.
+
+4. **Finalized Relationship Mappings**:
+    * Established bidirectional `@OneToMany` structures between the profiles and the `Appointment` entity.
+    * Utilized `FetchType.LAZY` to ensure optimal performance.
+
+5. **Database Migration Success**:
+    * Successfully connected the application to local MySQL (`cvam_registry`).
+    * Configured `spring.jpa.hibernate.ddl-auto=update` and resolved all constructor signature conflicts.
+    * The application now **boots up flawlessly**, auto-generating all **5 normalized tables**.
+
+---
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Create the `JpaRepository` interfaces** for the new profiles.
+2. **Refactor `AppointmentService`** to utilize database-backed persistence instead of hardcoded mock records.
+

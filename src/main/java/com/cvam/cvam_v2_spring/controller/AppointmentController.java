@@ -25,7 +25,7 @@ public class AppointmentController {
 
     @GetMapping
     public List<Appointment> getAllAppointments() {
-        //1. Create a User for the Citizen
+        //1. Create a User for the Citizen with their personal data
         User citizenUser = new User(
                 "Luigi",
                 "Verdi",
@@ -34,14 +34,20 @@ public class AppointmentController {
                 "+3928974157",
                 LocalDate.of(1987, 9, 28)
         );
+        CitizenProfile citizen = new CitizenProfile(citizenUser);
 
-        DoctorProfile doctor = new DoctorProfile(
+        //2. Create a User for the Doctor with their personal details
+
+        User doctorUser = new User(
                 "Francesca",
                 "Neri",
                 "NRIFNC80A01H501Z",
                 "francesca@dottore.it",
-                "556988"
+                "+3934567890",
+                LocalDate.of(1980, 1, 1)
         );
+        //Pass the Doctor User, license and their optional office phone extension
+        DoctorProfile doctor = new DoctorProfile(doctorUser, "556988", "+3902123456");
 
         //Pre-populating a test record for demo purposes
         if (appointmentService.getAppointments().isEmpty()) {
@@ -62,15 +68,25 @@ public class AppointmentController {
         //@RequestBody tells Spring to parse incoming JSON directly into an Appointment object
         //1. The DTO caught the flat data from the web.
         //2. We recunstruct the deep, valid domain objects using the DTO data,
-        CitizenProfile citizen = new CitizenProfile(
-                "Luigi", "Verdi", request.getFiscalCode(),
-                "luigi@verdi.com", "+3928974157", java.time.LocalDate.of(1987, 9, 28)
+        User citizenUser = new User(
+                "Luigi",
+                "Verdi",
+                request.getFiscalCode(),
+                "luigi@verdi.com",
+                "+3928974157",
+                LocalDate.of(1987, 9, 28)
         );
+        CitizenProfile citizen = new CitizenProfile(citizenUser);
 
-        DoctorProfile doctor = new DoctorProfile(
-                "Francesca", "Neri", "NRIFNC80A01H501Z",
-                "francesca@dottore.it", request.getDoctorId()
+        User doctorUser = new User(
+                "Francesca",
+                "Neri",
+                "NRIFNC80A01H501Z",
+                "francesca@dottore.it",
+                "+3934567890",
+                LocalDate.of(1980, 1, 1)
         );
+        DoctorProfile doctor = new DoctorProfile(doctorUser, "556988", "+3902123456");
 
         //3. This triggers the self-protecting constructor guards!
         Appointment cleanAppointment = new Appointment(

@@ -3,6 +3,8 @@ package com.cvam.cvam_v2_spring.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -23,11 +25,17 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private LocalDate birthDate;
+
     protected User() {
         //for JPA
     }
 
-    public User(String firstName, String lastName, String fiscalCode, String email, ) {
+    public User(String firstName, String lastName, String fiscalCode, String email, String phoneNumber, LocalDate birthDate) {
 
         //VALIDATION
         //First Name
@@ -50,10 +58,22 @@ public class User {
             throw new IllegalArgumentException("Email is invalid.");
         }
 
+        //Phone Number
+        if (phoneNumber == null || !phoneNumber.startsWith("+")) {
+            throw new IllegalArgumentException("Phone number is invalid.");
+        }
+
+        //Birthdate
+        if (birthDate == null) {
+            throw new IllegalArgumentException("Birth date is required.");
+        }
+
         this.firstName = firstName;
         this.lastName = lastName;
         this.fiscalCode = fiscalCode;
         this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.birthDate = birthDate;
 
     }
 
@@ -77,7 +97,13 @@ public class User {
         return email;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
 
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
 }
 
 
