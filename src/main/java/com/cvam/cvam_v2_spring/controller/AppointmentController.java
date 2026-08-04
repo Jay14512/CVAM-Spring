@@ -2,8 +2,8 @@ package com.cvam.cvam_v2_spring.controller;
 
 import com.cvam.cvam_v2_spring.dto.AppointmentRequest;
 import com.cvam.cvam_v2_spring.model.Appointment;
-import com.cvam.cvam_v2_spring.model.Citizen;
-import com.cvam.cvam_v2_spring.model.Doctor;
+import com.cvam.cvam_v2_spring.model.CitizenProfile;
+import com.cvam.cvam_v2_spring.model.DoctorProfile;
 import com.cvam.cvam_v2_spring.service.AppointmentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +24,7 @@ public class AppointmentController {
 
     @GetMapping
     public List<Appointment> getAllAppointments() {
-        Citizen citizen = new Citizen(
+        CitizenProfile citizen = new CitizenProfile(
                 "Luigi",
                 "Verdi",
                 "VRDLGU75A01H501Z",
@@ -33,7 +33,7 @@ public class AppointmentController {
                 LocalDate.of(1987, 9, 28)
         );
 
-        Doctor doctor = new Doctor(
+        DoctorProfile doctor = new DoctorProfile(
                 "Francesca",
                 "Neri",
                 "NRIFNC80A01H501Z",
@@ -60,12 +60,12 @@ public class AppointmentController {
         //@RequestBody tells Spring to parse incoming JSON directly into an Appointment object
         //1. The DTO caught the flat data from the web.
         //2. We recunstruct the deep, valid domain objects using the DTO data,
-        Citizen citizen = new Citizen(
+        CitizenProfile citizen = new CitizenProfile(
                 "Luigi", "Verdi", request.getFiscalCode(),
                 "luigi@verdi.com", "+3928974157", java.time.LocalDate.of(1987, 9, 28)
         );
 
-        Doctor doctor = new Doctor(
+        DoctorProfile doctor = new DoctorProfile(
                 "Francesca", "Neri", "NRIFNC80A01H501Z",
                 "francesca@dottore.it", request.getDoctorId()
         );

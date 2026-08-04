@@ -6,8 +6,8 @@
 
 * **Clean Spring Initializr Foundation**: Configured a Maven-based Java Spring Boot application with `Spring Web` and
   `Spring Boot Actuator` dependencies.
-* **Manual Model Migration**: Re-typed all five self-protecting domain models (`User`, `Appointment`, `Citizen`,
-  `Doctor`, and `Staff`) into the singular `com.cvam.cvam_v2_spring.model` package, preserving strict final field
+* **Manual Model Migration**: Re-typed all five self-protecting domain models (`User`, `Appointment`, `CitizenProfile`,
+  `DoctorProfile`, and `StaffProfile`) into the singular `com.cvam.cvam_v2_spring.model` package, preserving strict final field
   immutability and guard-clause validations.
 * **Upgraded Layered Architecture**:
     * Migrated the old `AppointmentService` logic into a managed Spring `@Service` bean using the singular `service`
@@ -71,7 +71,7 @@ with an active database connection pool.
 **Milestone 2: The Object-Relational Database Engine**.
 
 1. **Transforming Models to Managed Entities- write Our First Database `@Entity` Rules**:
-    * Decorate our immutable domain models (`User`, `Citizen`, `Doctor`) with Hibernate annotations (`@Entity`,
+    * Decorate our immutable domain models (`User`, `CitizenProfile`, `DoctorProfile`) with Hibernate annotations (`@Entity`,
       `@Table`, `@Id`).
     * Learn how to resolve the ultimate Java framework paradox: satisfying Hibernate’s structural requirement for an
       empty, no-arguments constructor without breaking our strict domain validation guard rails.
@@ -89,7 +89,7 @@ with an active database connection pool.
 Today focused on understanding and stabilizing the JPA entity model design decisions.
 
 1. **Inheritance Strategy Decision**:
-    * Chosen direction: `@MappedSuperclass` for `User` as the shared base for `Citizen`, `Doctor`, and `Staff`.
+    * Chosen direction: `@MappedSuperclass` for `User` as the shared base for `CitizenProfile`, `DoctorProfile`, and `StaffProfile`.
     * Clarified why this fits current architecture: shared fields without requiring a standalone `users` table.
 
 2. **Entity Lifecycle Rules Clarified**:
@@ -101,8 +101,8 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 3. **Relationship Mapping Foundation**:
     * Clarified the mapping split:
       * scalar fields (`String`, `LocalDate`, etc.) -> `@Column`
-      * entity references (`Doctor`, `Citizen`) -> relationship annotations (`@ManyToOne`, `@JoinColumn`, etc.)
-    * Started converting `Staff` and `Appointment` toward object-reference relationship mapping.
+      * entity references (`DoctorProfile`, `CitizenProfile`) -> relationship annotations (`@ManyToOne`, `@JoinColumn`, etc.)
+    * Started converting `StaffProfile` and `Appointment` toward object-reference relationship mapping.
 
 4. **Uniqueness vs Identity Model Locked In**:
     * Confirmed primary key strategy: technical DB identity via `Long id` + `@Id`.
@@ -128,7 +128,7 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 
 3. **Finalize Relationship Mappings**:
     * Convert remaining FK-like scalar references to object relationships where needed (`@ManyToOne` + `@JoinColumn`).
-    * Verify that `Appointment` references to `Citizen` and `Doctor` are correctly mapped as associations.
+    * Verify that `Appointment` references to `CitizenProfile` and `DoctorProfile` are correctly mapped as associations.
 
 4. **Introduce Repository Layer + First DB-Backed Flow**:
     * Create first `JpaRepository` interfaces for core entities.

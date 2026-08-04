@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-@SuppressWarnings({"ClassCanBeRecord"})
+
 
 @Entity
 @Table(name = "appointments")
@@ -22,13 +22,22 @@ public class Appointment {
     @Column(nullable = false, unique = true)
     private String appointmentId;
 
-    @ManyToOne
-    @JoinColumn(name = "citizen_id", nullable = false)
-    private Citizen citizen;
+    @Column(nullable = false)
+    private LocalDateTime dateTime;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private String vaccineType;
+
+
+    //LINK TO CITIZEN
+    @ManyToOne(fetch = FetchType.LAZY)//Lazy loading is best practice for performance
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private CitizenProfile citizen;
+
+    //LINK TO DOCTOR
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    private DoctorProfile doctor;
 
     /**
      * The scheduled date and time for the vaccination.
@@ -36,17 +45,12 @@ public class Appointment {
      * Time zone offsets are omitted.
      */
 
-    @Column(nullable = false)
-    private LocalDateTime dateTime;
-
-    @Column(nullable = false)
-    private String vaccineType;
 
     protected Appointment() {
         //for JPA
     }
 
-    public Appointment(String appointmentId, Citizen citizen, Doctor doctor, LocalDateTime dateTime, String vaccineType) {
+    public Appointment(String appointmentId, CitizenProfile citizen, DoctorProfile doctor, LocalDateTime dateTime, String vaccineType) {
         //VALIDATION
         //Appointment ID
         if (appointmentId == null || appointmentId.isEmpty()) {
@@ -86,11 +90,11 @@ public class Appointment {
         return appointmentId;
     }
 
-    public Citizen getCitizen() {
+    public CitizenProfile getCitizen() {
         return citizen;
     }
 
-    public Doctor getDoctor() {
+    public DoctorProfile getDoctor() {
         return doctor;
     }
 

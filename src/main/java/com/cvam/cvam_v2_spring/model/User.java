@@ -1,13 +1,26 @@
 package com.cvam.cvam_v2_spring.model;
 
 
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 
-@MappedSuperclass
-public abstract class User {
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
+
+    @Column(nullable = false, unique = true)
     private String fiscalCode;
+
+    @Column(nullable = false, unique = true)
     private String email;
 
     protected User() {
@@ -42,6 +55,10 @@ public abstract class User {
         this.fiscalCode = fiscalCode;
         this.email = email;
 
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {

@@ -4,8 +4,9 @@ package com.cvam.cvam_v2_spring.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "staff")
-public class Staff extends User {
+@Table(name = "staff_profiles")
+public class StaffProfile {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -13,16 +14,22 @@ public class Staff extends User {
     @Column(nullable = false, unique = true)
     private String staffCode;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    //Links the job instance back to the physical person
 
-    protected Staff() {
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    //Links this job to a specific doctor
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private DoctorProfile doctor;
+
+    protected StaffProfile() {
         //Required by JPA
     }
 
-    public Staff(String firstName, String lastName, String fiscalCode, String email, String staffCode, Doctor doctor) {
-        super(firstName, lastName, fiscalCode, email);
+    public StaffProfile(String staffCode, User user, DoctorProfile doctor) {
 
         //VALIDATION
         //Staff Code
@@ -30,12 +37,17 @@ public class Staff extends User {
             throw new IllegalArgumentException("Staff code is required.");
         }
 
+        //User
+        if (user == null) {
+            throw new IllegalArgumentException("User association required ");
+        }
         //Doctor ID
         if (doctor == null) {
-            throw new IllegalArgumentException("Doctor ID is required.");
+            throw new IllegalArgumentException("Doctor association required.");
         }
 
         this.staffCode = staffCode;
+        this.user = user;
         this.doctor = doctor;
 
     }
@@ -48,7 +60,11 @@ public class Staff extends User {
         return staffCode;
     }
 
-    public Doctor getDoctor() {
+    public User getUser() {
+        return user;
+    }
+
+    public DoctorProfile getDoctor() {
         return doctor;
     }
 
