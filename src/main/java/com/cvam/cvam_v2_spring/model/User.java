@@ -27,7 +27,7 @@ public class User {
         //for JPA
     }
 
-    public User(String firstName, String lastName, String fiscalCode, String email) {
+    public User(String firstName, String lastName, String fiscalCode, String email, ) {
 
         //VALIDATION
         //First Name

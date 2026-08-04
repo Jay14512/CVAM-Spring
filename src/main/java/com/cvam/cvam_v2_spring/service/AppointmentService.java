@@ -31,7 +31,7 @@ public class AppointmentService {
 
         //Rule 2: Case-insensitive double-booking guard
         for (Appointment existing : appointments) {
-            if (existing.getDoctor().getDoctorId().equalsIgnoreCase(appointment.getDoctor().getDoctorId())
+            if (existing.getDoctor().getMedicalLicenseNumber().equalsIgnoreCase(appointment.getDoctor().getMedicalLicenseNumber())
                     && existing.getDateTime().equals(appointment.getDateTime())) {
                 throw new AppointmentConflictException("Appointment already exists for this doctor at this time.");
             }
@@ -76,7 +76,7 @@ public class AppointmentService {
 
         List<Appointment> filtered = new ArrayList<>();
         for (Appointment appt : appointments) {
-            if (appt.getCitizen().getFiscalCode().equalsIgnoreCase(fiscalCode)) {
+            if (appt.getCitizen().getUser().getFiscalCode().equalsIgnoreCase(fiscalCode)) {
                 filtered.add(appt);
             }
         }
@@ -90,7 +90,7 @@ public class AppointmentService {
         }
         List<Appointment> filtered = new ArrayList<>();
         for (Appointment appt : appointments) {
-            if (appt.getDoctor().getDoctorId().equalsIgnoreCase(doctorId)) {
+            if (appt.getDoctor().getMedicalLicenseNumber().equalsIgnoreCase(doctorId)) {
                 filtered.add(appt);
             }
         }

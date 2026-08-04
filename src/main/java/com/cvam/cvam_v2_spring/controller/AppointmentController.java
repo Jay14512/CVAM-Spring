@@ -4,6 +4,7 @@ import com.cvam.cvam_v2_spring.dto.AppointmentRequest;
 import com.cvam.cvam_v2_spring.model.Appointment;
 import com.cvam.cvam_v2_spring.model.CitizenProfile;
 import com.cvam.cvam_v2_spring.model.DoctorProfile;
+import com.cvam.cvam_v2_spring.model.User;
 import com.cvam.cvam_v2_spring.service.AppointmentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,8 @@ public class AppointmentController {
 
     @GetMapping
     public List<Appointment> getAllAppointments() {
-        CitizenProfile citizen = new CitizenProfile(
+        //1. Create a User for the Citizen
+        User citizenUser = new User(
                 "Luigi",
                 "Verdi",
                 "VRDLGU75A01H501Z",
