@@ -8,4 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface DoctorProfileRepository extends JpaRepository<DoctorProfile, Long> {
+    //Check if a license is already taken before saving a new doctor
+    boolean existsByMedicalLicenseNumber(String medicalLicenseNumber);
+
+    //Find a doctor by their specific license number
+    Optional<DoctorProfile> findByMedicalLicenseNumber(String medicalLicenseNumber);
 }

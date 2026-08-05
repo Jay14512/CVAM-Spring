@@ -179,3 +179,46 @@ Spring Boot application using **Spring Data JPA** and **MySQL**.
 2. **Refactor `AppointmentService`** to utilize database-backed persistence instead of hardcoded mock records.
 
 ---
+
+## Session 5 — August 5, 2026
+
+### 📌 Current State & Accomplishments
+
+Today focused on wiring repository-driven business flows and stabilizing service-level compile/runtime rules.
+
+1. **Repository Layer Expansion and Query Methods**:
+    * Added/updated Spring Data repositories for `User`, `CitizenProfile`, `DoctorProfile`, `StaffProfile`, and `Appointment`.
+    * Introduced domain-specific lookup and existence checks for key business rules (email/fiscal code uniqueness, medical license uniqueness, staff code uniqueness, and appointment collision checks).
+    * Added profile retrieval methods based on nested user data paths, and a JPQL `JOIN FETCH` helper for `CitizenProfile` to support cleaner lazy-loading behavior.
+
+2. **Service Layer Transaction Workflows**:
+    * Built out `UserService` transactional flows for:
+        * core user registration with uniqueness validation
+        * citizen onboarding (`User` + `CitizenProfile`) in one atomic transaction
+    * Built out `DoctorService` transactional flows for:
+        * doctor onboarding (`User` + `DoctorProfile`)
+        * assigning staff to a doctor (`User` + `StaffProfile` with doctor FK validation)
+
+3. **Appointment Rules Moved to Repository-Backed Guards**:
+    * Updated `AppointmentService` to enforce duplicate-appointment protection and doctor/date-time collision checks via repository methods.
+    * Preserved custom domain exceptions for invalid input, conflicts, and not-found cancellation paths.
+
+4. **Compile Error Stabilization**:
+    * Fixed a structural syntax issue in `UserService` (missing method-closing brace) that was breaking method parsing.
+    * Fixed a repository signature mismatch in `AppointmentRepository` so the doctor/date-time existence check matches service usage.
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Connect Services to Controllers End-to-End**:
+    * Add/finish controller endpoints for the new doctor/staff/user registration workflows.
+    * Ensure request payloads map cleanly into DTOs/domain objects for onboarding operations.
+
+2. **Harden Validation and Error Mapping**:
+    * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses (`@ControllerAdvice` / structured error payloads).
+    * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce accidental mismatch bugs.
+
+3. **Run Full API Flow Tests Against MySQL**:
+    * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile` records.
+    * Confirm duplicate guards and collision checks behave correctly under repeated requests.
+
+---

@@ -4,69 +4,64 @@ import com.cvam.cvam_v2_spring.exception.AppointmentConflictException;
 import com.cvam.cvam_v2_spring.exception.AppointmentNotFoundException;
 import com.cvam.cvam_v2_spring.exception.InvalidAppointmentException;
 import com.cvam.cvam_v2_spring.model.Appointment;
+import com.cvam.cvam_v2_spring.repository.AppointmentRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+
+
 
 
 @Service //This makes Spring manage this class as a reusable Bean
 public class AppointmentService {
-    //For now, we keep the in-memory list, which will later be replaced by MySQL
-    private final List<Appointment> appointments = new ArrayList<>();
+    //Database repository dependency
+    private final AppointmentRepository appointmentRepository;
 
+    public AppointmentService(AppointmentRepository appointmentRepository){
+        this.appointmentRepository = appointmentRepository;
+    }
+
+    @Transactional
     public void bookAppointment(Appointment appointment) {
         if (appointment == null) {
             throw new InvalidAppointmentException("Appointment data cannot be null.");
         }
 
-        //Rule 1: Reject duplicate IDs
-        for (Appointment existing : appointments) {
-            if (existing.getAppointmentId().equalsIgnoreCase(appointment.getAppointmentId())) {
+        //Rule 1: Reject duplicate IDs (Database lookup)
+
+            if (appointmentRepository.existsByAppointmentIdIgnoreCase(appointment.getAppointmentId())) {
                 throw new AppointmentConflictException("Booking failed: Appointment ID already exists.");
             }
-        }
 
-        //Rule 2: Case-insensitive double-booking guard
-        for (Appointment existing : appointments) {
-            if (existing.getDoctor().getMedicalLicenseNumber().equalsIgnoreCase(appointment.getDoctor().getMedicalLicenseNumber())
-                    && existing.getDateTime().equals(appointment.getDateTime())) {
+
+        //Rule 2: Case-insensitive double-booking guard via DB cross-referencing
+String doctorLicense = appointment.getDoctor().getMedicalLicenseNumber();
+            if (appointmentRepository.existsByDoctorMedicalLicenseNumberIgnoreCaseAndDateTime(doctorLicense, appointment.getDateTime())) {
                 throw new AppointmentConflictException("Appointment already exists for this doctor at this time.");
             }
-        }
-        appointments.add(appointment);
+
+            //Save directly to MySQL
+        appointmentRepository.save(appointment);
     }
 
+    @Transactional
     public void cancelAppointment(String appointmentId) {
         if (appointmentId == null || appointmentId.trim().isEmpty()) {
             throw new InvalidAppointmentException("Invalid input: Appointment ID cannot be empty.");
         }
+//Look up the appointment, or instantly throw custom Not Found Exception
+        Appointment appointment = appointmentRepository.findByAppointmentIdIgnoreCase(appointmentId)
+                .orElseThrow(()-> new AppointmentNotFoundException("Appointment not found."));
 
-        for (int i = 0; i < appointments.size(); i++) {
-            if (appointments.get(i).getAppointmentId().equalsIgnoreCase(appointmentId)) {
-                appointments.remove(i);
-                return;
-            }
-        }
-        throw new AppointmentNotFoundException("Appointment not found.");
+        appointmentRepository.delete(appointment);
     }
 
-    private void sortAppointments(List<Appointment> list, boolean ascending) {
-        Comparator<Appointment> ascendingComparator = Comparator.comparing(Appointment::getDateTime)
-                .thenComparing(Appointment::getAppointmentId);
-
-        if (ascending) {
-            list.sort(ascendingComparator);
-        } else {
-            list.sort(Comparator.comparing(Appointment::getDateTime).reversed()
-                    .thenComparing(Comparator.comparing(Appointment::getAppointmentId).reversed()));
-        }
-    }
 
     public List<Appointment> getAppointments() {
-        return Collections.unmodifiableList(appointments);
+        //Fetches every appointment row out of the database table
+        return appointmentRepository.findAll();
     }
 
     public List<Appointment> getAppointmentsForCitizen(String fiscalCode, boolean ascending) {
@@ -74,30 +69,28 @@ public class AppointmentService {
             throw new InvalidAppointmentException("Fiscal Code cannot be empty.");
         }
 
-        List<Appointment> filtered = new ArrayList<>();
-        for (Appointment appt : appointments) {
-            if (appt.getCitizen().getUser().getFiscalCode().equalsIgnoreCase(fiscalCode)) {
-                filtered.add(appt);
-            }
-        }
-        sortAppointments(filtered, ascending);
-        return Collections.unmodifiableList(filtered);
+        //Dynamically building database sort strategy based on the 'ascending' argument
+        Sort sort = buildDynamicSort(ascending);
+
+        return appointmentRepository.findByCitizenUserFiscalCodeIgnoreCase(fiscalCode, sort);
     }
+
 
     public List<Appointment> getAppointmentsForDoctor(String doctorId, boolean ascending) {
         if (doctorId == null || doctorId.trim().isEmpty()) {
             throw new InvalidAppointmentException("Doctor ID cannot be empty.");
         }
-        List<Appointment> filtered = new ArrayList<>();
-        for (Appointment appt : appointments) {
-            if (appt.getDoctor().getMedicalLicenseNumber().equalsIgnoreCase(doctorId)) {
-                filtered.add(appt);
-            }
+        Sort sort = buildDynamicSort(ascending);
+        return appointmentRepository.findByDoctorMedicalLicenseNumberIgnoreCase(doctorId, sort);
         }
 
-        sortAppointments(filtered, ascending);
-        return Collections.unmodifiableList(filtered);
-    }
+    /**
+     * Replaces custom in-memory sort methods by using Spring's native data Sort configurations.
+     */
+    private Sort buildDynamicSort(boolean ascending){
+        Sort.Direction direction = ascending ? Sort.Direction.ASC : Sort.Direction.DESC;
+        return Sort.by(direction, "dateTime").and(Sort.by(direction, "appointmentId"));
+}
 
 
 }
