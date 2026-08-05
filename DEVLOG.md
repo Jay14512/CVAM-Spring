@@ -30,6 +30,8 @@
     * Introduce the MySQL database engine dependencies without violating credential exposure guidelines by configuring
       local IntelliJ environment variables (`${DB_USERNAME}`).
 
+---
+
 ## Session 2 — August 2, 2026
 
 ### 📌 Current State & Accomplishments
@@ -64,8 +66,6 @@ with an active database connection pool.
     * Booted the server to a flawless connection status, launching the stateful background database connection manager
       engine automatically.
 
----
-
 ### 🚀 Next Session — Pick Up Here
 
 **Milestone 2: The Object-Relational Database Engine**.
@@ -82,6 +82,8 @@ with an active database connection pool.
 3. **Bring the System Live**:
     * Open phpMyAdmin/IntelliJ Database view to watch Hibernate read our Java files and automatically build out the
       physical SQL tables inside your local MySQL server.
+
+---
 
 ## Session 3 — August 3, 2026
 
@@ -112,8 +114,6 @@ Today focused on understanding and stabilizing the JPA entity model design decis
     * Confirmed business uniqueness strategy as separate constraints (for fields like `fiscalCode`, `doctorId`,
       `staffCode`, `appointmentId`) instead of forcing uniqueness on unrelated fields like `birthDate`.
 
----
-
 ### 🚀 Next Session — Pick Up Here (Tomorrow)
 
 **Milestone 3: Finalize Entity Integrity + Repository Persistence**
@@ -136,6 +136,8 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 4. **Introduce Repository Layer + First DB-Backed Flow**:
     * Create first `JpaRepository` interfaces for core entities.
     * Replace one in-memory lookup path with repository-backed persistence to prove end-to-end DB integration.
+
+---
 
 ## Session 4 — August 4, 2026
 
@@ -171,10 +173,9 @@ Spring Boot application using **Spring Data JPA** and **MySQL**.
     * Configured `spring.jpa.hibernate.ddl-auto=update` and resolved all constructor signature conflicts.
     * The application now **boots up flawlessly**, auto-generating all **5 normalized tables**.
 
----
-
 ### 🚀 Next Session — Pick Up Here
 
 1. **Create the `JpaRepository` interfaces** for the new profiles.
 2. **Refactor `AppointmentService`** to utilize database-backed persistence instead of hardcoded mock records.
 
+---
