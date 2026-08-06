@@ -1,5 +1,7 @@
 package com.cvam.cvam_v2_spring.service;
 
+import com.cvam.cvam_v2_spring.exception.EmailAlreadyRegisteredException;
+import com.cvam.cvam_v2_spring.exception.FiscalCodeAlreadyRegisteredException;
 import com.cvam.cvam_v2_spring.model.CitizenProfile;
 import com.cvam.cvam_v2_spring.model.User;
 import com.cvam.cvam_v2_spring.repository.CitizenProfileRepository;
@@ -36,11 +38,11 @@ public class UserService{
     public User registerUser(User user) {
         //Check uniqueness before saving to prevent raw SQL constraint exception
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email is already registered.");
+            throw new EmailAlreadyRegisteredException();
         }
 
         if (userRepository.existsByFiscalCode(user.getFiscalCode())) {
-            throw new IllegalArgumentException("Fiscal code is already registered.");
+            throw new FiscalCodeAlreadyRegisteredException();
         }
         //Save to Database (equivalent to $user->save() in Eloquent)
         return userRepository.save(user);
@@ -55,10 +57,10 @@ public class UserService{
         public CitizenProfile registerCitizen (User newUser){
             //1. Perform a database-level uniqueness validation
             if (userRepository.existsByEmail(newUser.getEmail())) {
-                throw new IllegalArgumentException("Email is already registered.");
+                throw new EmailAlreadyRegisteredException();
             }
             if (userRepository.existsByFiscalCode(newUser.getFiscalCode())) {
-                throw new IllegalArgumentException("Fiscal Code is already registered.");
+                throw new FiscalCodeAlreadyRegisteredException();
             }
 
             //2. Persist the User record to generate the database ID

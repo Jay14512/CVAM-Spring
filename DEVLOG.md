@@ -70,7 +70,7 @@ with an active database connection pool.
 
 **Milestone 2: The Object-Relational Database Engine**.
 
-1. **Transforming Models to Managed Entities- write Our First Database `@Entity` Rules**:
+1. **Transforming Models to Managed Entities - write Our First Database `@Entity` Rules**:
     * Decorate our immutable domain models (`User`, `CitizenProfile`, `DoctorProfile`) with Hibernate annotations
       (`@Entity`,
       `@Table`, `@Id`).
@@ -127,7 +127,7 @@ Today focused on understanding and stabilizing the JPA entity model design decis
 
 2. **Apply Constraints at the Correct Layer**:
     * Add definitive `@Column(nullable = false, unique = true)` constraints only to true business-unique fields.
-    * Keep non-unique domain attributes (like birth date) as required columns without uniqueness constraints.
+    * Keep non-unique domain attributes (like birthdate) as required columns without uniqueness constraints.
 
 3. **Finalize Relationship Mappings**:
     * Convert remaining FK-like scalar references to object relationships where needed (`@ManyToOne` + `@JoinColumn`).
@@ -187,9 +187,12 @@ Spring Boot application using **Spring Data JPA** and **MySQL**.
 Today focused on wiring repository-driven business flows and stabilizing service-level compile/runtime rules.
 
 1. **Repository Layer Expansion and Query Methods**:
-    * Added/updated Spring Data repositories for `User`, `CitizenProfile`, `DoctorProfile`, `StaffProfile`, and `Appointment`.
-    * Introduced domain-specific lookup and existence checks for key business rules (email/fiscal code uniqueness, medical license uniqueness, staff code uniqueness, and appointment collision checks).
-    * Added profile retrieval methods based on nested user data paths, and a JPQL `JOIN FETCH` helper for `CitizenProfile` to support cleaner lazy-loading behavior.
+    * Added/updated Spring Data repositories for `User`, `CitizenProfile`, `DoctorProfile`, `StaffProfile`, and
+      `Appointment`.
+    * Introduced domain-specific lookup and existence checks for key business rules (email/fiscal code uniqueness,
+      medical license uniqueness, staff code uniqueness, and appointment collision checks).
+    * Added profile retrieval methods based on nested user data paths, and a JPQL `JOIN FETCH` helper for
+      `CitizenProfile` to support cleaner lazy-loading behavior.
 
 2. **Service Layer Transaction Workflows**:
     * Built out `UserService` transactional flows for:
@@ -200,12 +203,14 @@ Today focused on wiring repository-driven business flows and stabilizing service
         * assigning staff to a doctor (`User` + `StaffProfile` with doctor FK validation)
 
 3. **Appointment Rules Moved to Repository-Backed Guards**:
-    * Updated `AppointmentService` to enforce duplicate-appointment protection and doctor/date-time collision checks via repository methods.
+    * Updated `AppointmentService` to enforce duplicate-appointment protection and doctor/date-time collision checks via
+      repository methods.
     * Preserved custom domain exceptions for invalid input, conflicts, and not-found cancellation paths.
 
 4. **Compile Error Stabilization**:
     * Fixed a structural syntax issue in `UserService` (missing method-closing brace) that was breaking method parsing.
-    * Fixed a repository signature mismatch in `AppointmentRepository` so the doctor/date-time existence check matches service usage.
+    * Fixed a repository signature mismatch in `AppointmentRepository` so the doctor/date-time existence check matches
+      service usage.
 
 ### 🚀 Next Session — Pick Up Here
 
@@ -214,11 +219,60 @@ Today focused on wiring repository-driven business flows and stabilizing service
     * Ensure request payloads map cleanly into DTOs/domain objects for onboarding operations.
 
 2. **Harden Validation and Error Mapping**:
-    * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses (`@ControllerAdvice` / structured error payloads).
-    * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce accidental mismatch bugs.
+    * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses
+      (`@ControllerAdvice` / structured error payloads).
+    * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce
+      accidental mismatch bugs.
 
 3. **Run Full API Flow Tests Against MySQL**:
-    * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile` records.
+    * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile`
+      records.
     * Confirm duplicate guards and collision checks behave correctly under repeated requests.
+
+4. **Add new Exceptions**:
+    * EmailAlreadyRegisteredException
+    * FiscalCodeAlreadyRegisteredException
+    * Optionally: give both Exceptions a second constructor that accepts a custom message when needed
+    * Map them in a global @ControllerAdvice so they return a stable HTTP status (usually 409 CONFLICT for duplicates).
+
+---
+
+## Session 6 — August 6, 2026
+
+### 📌 Current State & Accomplishments
+
+Today was a focused cleanup pass on API error handling consistency.
+
+1. **Added Specific Custom Exceptions**:
+    * Introduced dedicated domain exceptions with hardcoded default messages to avoid repeating message literals across services.
+    * Updated constructor signatures to support no-arg usage (`throw new ...Exception();`) while still propagating the intended message.
+
+2. **Introduced Global Exception Handling**:
+    * Added a centralized `GlobalExceptionHandler` using Spring advice annotations to map exceptions in one place.
+    * Reduced controller/service clutter by moving HTTP error response shaping out of business logic.
+
+3. **Standardized API Error Payload**:
+    * Added `ApiError` as the structured response body for handled failures.
+    * Established a single error contract pattern for client-facing exception responses.
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Connect Services to Controllers End-to-End**:
+   * Add/finish controller endpoints for the new doctor/staff/user registration workflows.
+   * Ensure request payloads map cleanly into DTOs/domain objects for onboarding operations.
+
+2. **Harden Validation and Error Mapping**:
+   * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses
+     (`@ControllerAdvice` / structured error payloads).
+   * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce
+     accidental mismatch bugs.
+
+3. **Run Full API Flow Tests Against MySQL**:
+   * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile`
+     records.
+   * Confirm duplicate guards and collision checks behave correctly under repeated requests.
+
+4. Wire any remaining domain exceptions into `GlobalExceptionHandler` with explicit status mappings.
+5. Confirm all onboarding endpoints return the same `ApiError` shape for validation/conflict/not-found paths.
 
 ---
