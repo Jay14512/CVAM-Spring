@@ -31,7 +31,7 @@ public class DoctorService {
      */
 
     @Transactional
-    public DoctorProfile onboardDoctor(User userDetails, String medicalLicenceNumber, String officePhone) {
+    public DoctorProfile onboardDoctor(User userDetails, String medicalLicenseNumber, String officePhone) {
         //1. Validate global User account details uniqueness
         if (userRepository.existsByEmail(userDetails.getEmail())) {
             throw new IllegalArgumentException("Email is already registered.");
@@ -41,7 +41,7 @@ public class DoctorService {
         }
 
         //2. Validate Doctor-specific business rules uniqueness
-        if (doctorProfileRepository.existsByMedicalLicenseNumber(medicalLicenceNumber)) {
+        if (doctorProfileRepository.existsByMedicalLicenseNumber(medicalLicenseNumber)) {
             throw new IllegalArgumentException("Medical license number is already registered.");
         }
 
@@ -49,7 +49,7 @@ public class DoctorService {
         User savedUser = userRepository.save(userDetails);
 
         //4. Construct and attach the administrative professional profile
-        DoctorProfile doctorProfile = new DoctorProfile(savedUser, medicalLicenceNumber, officePhone);
+        DoctorProfile doctorProfile = new DoctorProfile(savedUser, medicalLicenseNumber, officePhone);
 
         //5. Persist and return profile
         return doctorProfileRepository.save(doctorProfile);

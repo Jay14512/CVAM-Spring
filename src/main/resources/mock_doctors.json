@@ -1,0 +1,12 @@
+[
+  {
+    "firstName": "Anna",
+    "lastName": "Bianchi",
+    "fiscalCode": "BNCNNA75B41H501X",
+    "email": "anna.bianchi@example.com",
+    "phoneNumber": "+393339876543",
+    "birthDate": "1975-02-20",
+    "medicalLicenseNumber": "DOC12345",
+    "officePhoneNumber": "06123456"
+  }
+]
