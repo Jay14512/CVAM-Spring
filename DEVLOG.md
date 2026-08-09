@@ -276,3 +276,77 @@ Today was a focused cleanup pass on API error handling consistency.
 5. Confirm all onboarding endpoints return the same `ApiError` shape for validation/conflict/not-found paths.
 
 ---
+
+## Session 7 — August 8, 2026
+
+### 📌 Current State & Accomplishments
+
+Kept the session light and low-focus. Goal was to lay the groundwork for seed data without writing any seeder logic.
+
+1. **Mock JSON Seed Files Created**:
+    * Added `mock_users.json`, `mock_doctors.json`, `mock_staff.json`, and `mock_appointments.json` to
+      `src/main/resources/`.
+    * Decided against a hardcoded `DataSeeder.java` for now — JSON files scale better and avoid bloated code for large
+      datasets.
+
+2. **Stable Business Key Reference Strategy**:
+    * Adopted `userFiscalCode` as the link reference inside doctor and staff JSON files instead of relying on
+      auto-generated numeric DB IDs.
+    * `mock_doctors.json` format: `{ "userFiscalCode": "...", "medicalLicenseNumber": "...", "officePhoneNumber": "..." }`
+    * This approach is DB-reset-safe and avoids insert-order fragility.
+
+3. **Placeholder `DataSeeder.java` Scaffolded**:
+    * Created an empty `DataSeeder.java` in the `util/` package as a placeholder for future seed loading logic.
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Implement `DataSeeder` Loading Logic**:
+    * Build DTOs that match the mock JSON field names (e.g., `DoctorImportDto` with `userFiscalCode`).
+    * Write seeder code to: read JSON → look up `User` by fiscal code → save `DoctorProfile` / `StaffProfile`.
+
+2. **Continue connecting services to controllers end-to-end**.
+3. **Wire remaining domain exceptions into `GlobalExceptionHandler`**.
+
+---
+
+## Session 8 — August 9, 2026
+
+### 📌 Current State & Accomplishments
+
+Conceptual deep-dive session — no code changes, but critical architecture understanding solidified.
+
+1. **DB Relationship Split Confirmed**:
+    * Clarified that `firstName`, `lastName`, `fiscalCode`, `email`, `phoneNumber`, and `birthDate` belong **only** in
+      the `users` table.
+    * `doctor_profiles` and `staff_profiles` hold **role-specific fields only** (`medicalLicenseNumber`,
+      `officePhoneNumber`, `staffCode`) plus `user_id` as the foreign key link.
+    * The link is: `doctor_profiles.user_id → users.id` — no duplication of identity data.
+
+2. **Foreign Key Reference Strategy Locked In**:
+    * Confirmed that **hardcoding DB numeric IDs** (e.g., `"userId": 12`) in seed files is fragile and wrong — IDs
+      change across environments and resets.
+    * Correct pattern: reference users by stable business keys (e.g., `fiscalCode` or `email`) in seed/import files.
+
+3. **Entity vs. DTO — The Missing Link**:
+    * Understood the distinction between:
+        * **Entity/table model**: defines what gets stored in the DB — has `user_id`, no `userFiscalCode`.
+        * **DTO/import class**: defines what the JSON seed file contains — has `userFiscalCode`, no DB column.
+    * These are two separate Java classes with different responsibilities. Jackson maps JSON into the DTO; the service
+      then does the lookup and creates the entity.
+    * `userFiscalCode` in a JSON file will fail if deserialized directly into `DoctorProfile` — it must go into a
+      dedicated `DoctorImportDto`.
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Create Import DTOs**:
+    * `DoctorImportDto` — fields: `userFiscalCode`, `medicalLicenseNumber`, `officePhoneNumber`
+    * `StaffImportDto` — fields: `userFiscalCode`, `staffCode`
+
+2. **Implement `DataSeeder` Logic**:
+    * Load JSON files using Jackson `ObjectMapper`
+    * For each doctor/staff record: look up `User` by `fiscalCode` via repository, then create and save the profile
+      entity.
+
+3. **Connect remaining controller endpoints** for onboarding workflows.
+
+---

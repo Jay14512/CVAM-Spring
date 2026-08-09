@@ -20,16 +20,12 @@ public class StaffProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    //Links this job to a specific doctor
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private DoctorProfile doctor;
 
     protected StaffProfile() {
         //Required by JPA
     }
 
-    public StaffProfile(String staffCode, User user, DoctorProfile doctor) {
+    public StaffProfile(String staffCode, User user) {
 
         //VALIDATION
         //Staff Code
@@ -41,14 +37,11 @@ public class StaffProfile {
         if (user == null) {
             throw new IllegalArgumentException("User association required ");
         }
-        //Doctor ID
-        if (doctor == null) {
-            throw new IllegalArgumentException("Doctor association required.");
-        }
+
 
         this.staffCode = staffCode;
         this.user = user;
-        this.doctor = doctor;
+
 
     }
 
@@ -64,8 +57,5 @@ public class StaffProfile {
         return user;
     }
 
-    public DoctorProfile getDoctor() {
-        return doctor;
-    }
 
 }
