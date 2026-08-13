@@ -350,3 +350,58 @@ Conceptual deep-dive session — no code changes, but critical architecture unde
 3. **Connect remaining controller endpoints** for onboarding workflows.
 
 ---
+
+## Session 9 — August 13, 2026
+
+### 📌 Current State & Accomplishments
+
+Today was a foundational learning session on the final missing bridge: JSON import DTOs and their relationship to the
+real JPA entity layer.
+
+1. **DTOs Are JSON Contracts, Not DB Models**:
+    * Clarified the difference between an import DTO and an entity:
+        * DTO = plain Java object shaped specifically for JSON input (`userFiscalCode`, `medicalLicenseNumber`, etc.)
+        * Entity = DB-backed domain model (`User`, `DoctorProfile`, etc.) with validation and persistence rules
+    * Confirmed the correct pattern: Jackson reads JSON into a DTO, then `DataSeeder` translates DTO fields into domain
+      objects and saves them.
+
+2. **Import DTOs Structure Locked In**:
+    * `DoctorImportDto` fields: `userFiscalCode`, `medicalLicenseNumber`, `officePhoneNumber`
+    * `StaffImportDto` fields: `userFiscalCode`, `staffCode`
+    * `AppointmentImportDto` fields: `appointmentId`, `dateTime`, `vaccineType`, `citizenFiscalCode`,
+      `doctorLicenseNumber`
+    * Confirmed that DTO property names should match the mock JSON keys exactly, while entity field names can remain
+      domain-specific (`medicalLicenseNumber` vs. database/relationship naming is handled in seeder logic).
+
+3. **DataSeeder Pattern Clarified**:
+    * The seeder is the orchestration layer that reads JSON files, converts them to DTOs, looks up dependent data, and
+      creates real entity objects for saving.
+    * In Spring, the seeder should be a `@Component` and implement `CommandLineRunner` so it runs at startup.
+    * Constructor injection is the correct dependency pattern for `ObjectMapper` and the repositories it needs.
+
+4. **Jackson Version & Package Mismatch Resolved**:
+    * Diagnosed a major confusion source: the project is using the newer Jackson 3 package set (`tools.jackson...`), not
+      the older `com.fasterxml.jackson...` one.
+    * This explains why the `ObjectMapper` import and class resolution were failing even when the dependency was present.
+    * The correct import family is:
+        * `tools.jackson.databind.ObjectMapper`
+        * `tools.jackson.core.type.TypeReference`
+
+5. **Entity Construction Rules Re-Emphasized**:
+    * The domain entities are intentionally strict and do not expose setters.
+    * Correct creation pattern:
+        * `new User(firstName, lastName, fiscalCode, email, phoneNumber, birthDate)`
+        * `new DoctorProfile(user, medicalLicenseNumber, officePhoneNumber)`
+    * This means `DataSeeder` must translate DTO values into these constructor-based objects rather than trying to call
+      empty constructors + setters.
+
+### 🚀 Next Session — Pick Up Here
+
+1. **Complete the `DataSeeder` helper methods** for users and doctors.
+2. **Refactor the remaining helper methods** (`seedStaff`, `seedAppointments`) using the same DTO-to-entity translation
+   pattern.
+3. **Add duplicate guards** before each save (e.g., existing fiscal code, existing medical license, existing staff code,
+   existing appointment ID).
+4. **Run the app to verify startup seeding works without throwing application-context startup errors**.
+
+---

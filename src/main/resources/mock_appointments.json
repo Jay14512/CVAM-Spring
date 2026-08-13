@@ -4,13 +4,13 @@
     "dateTime": "2026-09-15T10:00:00",
     "vaccineType": "Flu",
     "citizenFiscalCode": "RSSMRA80A01H501U",
-    "doctorLicenseNumber": "DOC12345"
+    "doctorLicenseNumber": "UT-212397337"
   },
   {
     "appointmentId": "APPT-2026-002",
     "dateTime": "2026-09-15T10:30:00",
     "vaccineType": "HPV",
-    "citizenFiscalCode": "OTHERFISCALCODE1",
-    "doctorLicenseNumber": "DOC12345"
+    "citizenFiscalCode": "LEBUDS59H21W172F",
+    "doctorLicenseNumber": "QI-972624085"
   }
 ]

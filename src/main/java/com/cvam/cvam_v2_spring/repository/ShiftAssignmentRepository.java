@@ -19,7 +19,7 @@ public interface ShiftAssignmentRepository extends JpaRepository<ShiftAssignment
 
     //3. Find active assignments for a doctor during a specific time block
     //Useful for checking who is on duty during an appointment slot
-    @Query(value = "SELECT s FROM ShiftAssignment s WHERE s.doctor.id = :doctorId" + "AND :targetTime BETWEEN s.shiftStart AND s.shiftEnd")
+    @Query(value = "SELECT s FROM ShiftAssignment s WHERE s.doctor.id = :doctorId " + "AND :targetTime BETWEEN s.shiftStart AND s.shiftEnd")
     List<ShiftAssignment> findActiveStaffForDoctorAtTime(
             @Param("doctorId") Long doctorId,
             @Param("targetTime")LocalDateTime targetTime
