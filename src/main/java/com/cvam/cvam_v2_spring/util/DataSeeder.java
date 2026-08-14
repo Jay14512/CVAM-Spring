@@ -1,10 +1,15 @@
 package com.cvam.cvam_v2_spring.util;
 
 import com.cvam.cvam_v2_spring.dto.DoctorImportDto;
+import com.cvam.cvam_v2_spring.dto.StaffImportDto;
 import com.cvam.cvam_v2_spring.dto.UserImportDto;
 import com.cvam.cvam_v2_spring.model.DoctorProfile;
+import com.cvam.cvam_v2_spring.model.StaffProfile;
 import com.cvam.cvam_v2_spring.model.User;
-import com.cvam.cvam_v2_spring.repository.*;
+import com.cvam.cvam_v2_spring.repository.AppointmentRepository;
+import com.cvam.cvam_v2_spring.repository.DoctorProfileRepository;
+import com.cvam.cvam_v2_spring.repository.StaffProfileRepository;
+import com.cvam.cvam_v2_spring.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -19,7 +24,6 @@ import java.util.List;
 public class DataSeeder implements CommandLineRunner {
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
-    private final CitizenProfileRepository citizenProfileRepository;
     private final DoctorProfileRepository doctorProfileRepository;
     private final StaffProfileRepository staffProfileRepository;
     private final AppointmentRepository appointmentRepository;
@@ -28,14 +32,12 @@ public class DataSeeder implements CommandLineRunner {
     public DataSeeder(
             ObjectMapper objectMapper,
             UserRepository userRepository,
-            CitizenProfileRepository citizenProfileRepository,
             DoctorProfileRepository doctorProfileRepository,
             StaffProfileRepository staffProfileRepository,
             AppointmentRepository appointmentRepository
     ) {
         this.objectMapper = objectMapper;
         this.userRepository = userRepository;
-        this.citizenProfileRepository = citizenProfileRepository;
         this.doctorProfileRepository = doctorProfileRepository;
         this.staffProfileRepository = staffProfileRepository;
         this.appointmentRepository = appointmentRepository;
@@ -45,9 +47,8 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
         seedUsers();
-        // seedCitizens();
         seedDoctors();
-        //seedStaff();
+        seedStaff();
         //seedAppointments();
     }
 
@@ -107,7 +108,7 @@ public class DataSeeder implements CommandLineRunner {
             //3. Fetch the corresponding User account from the database
             // Doctor profiles depend on an existing user record
             for (DoctorImportDto dto : dtos) {
-                User user = userRepository.findByFiscalCode(dto.getUserFiscalCode())
+                User user = userRepository.findUserByFiscalCode((dto.getUserFiscalCode()))
                         .orElseThrow(() -> new RuntimeException("Cannot seed doctor. User not found for Fiscal Code: " + dto.getUserFiscalCode()));
 
                 if (doctorProfileRepository.existsByMedicalLicenseNumber((dto.getMedicalLicenseNumber()))) {
@@ -133,6 +134,44 @@ public class DataSeeder implements CommandLineRunner {
             throw new RuntimeException("Failed to seed doctors data", e);
         }
     }
+
+    private void seedStaff() {
+        //1. read file from resources
+        ClassPathResource resource = new ClassPathResource("mock_staff.json");
+
+        try (InputStream inputStream = resource.getInputStream()) {
+            //2. Deserialize JSON into a list of StaffImportDto objects using Jackson
+            //TypeReference constructs a generic list binding safely
+            List<StaffImportDto> dtos = objectMapper.readValue(inputStream, new TypeReference<List<StaffImportDto>>() {
+            });
+
+            //3. Fetch the corresponding User account from the database
+            // Staff profiles depend on an existing user record
+            for (StaffImportDto dto : dtos) {
+                User user = userRepository.findUserByFiscalCode((dto.getUserFiscalCode()))
+                        .orElseThrow(() -> new RuntimeException("Cannot seed Staff. User not found for Fiscal Code " + dto.getUserFiscalCode()));
+
+                if (staffProfileRepository.existsByStaffCode((dto.getStaffCode()))) {
+                    System.out.println("Staff with Staff Code " + dto.getStaffCode() + "already exists. Skipping");
+                    continue;
+                }
+                //4. Map the fields from DTO to the real Entity
+                StaffProfile staff = new StaffProfile(
+                        dto.getStaffCode(),
+                        user
+                );
+                //6. Save final entity
+                staffProfileRepository.save(staff);
+
+            }
+            System.out.println("Staff seeding completed successfully!");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to seed staff data", e);
+        }
+    }
+
+
 }
 
 

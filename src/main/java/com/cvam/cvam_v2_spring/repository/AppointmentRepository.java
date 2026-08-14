@@ -23,9 +23,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     //3. Used for Rule 2: Case-insensitive double-booking guard
     boolean existsByDoctorMedicalLicenseNumberIgnoreCaseAndDateTime(String medicalLicenseNumber, LocalDateTime dateTime);
 
-    //4. Find and sort appointments for a Citizen using their nested User's Fiscal code
-    //Spring reads the path: citizen -> user -> fiscalCode
-    List<Appointment> findByCitizenUserFiscalCodeIgnoreCase(String fiscalCode, Sort sort);
+    //4. Find and sort appointments for a User using their Fiscal code
+    List<Appointment> findByUserFiscalCodeIgnoreCase(String fiscalCode, Sort sort);
 
     //5. Find and sort appointments for a Doctor using their Medical License Number
     List<Appointment> findByDoctorMedicalLicenseNumberIgnoreCase(String medicalLicenseNumber, Sort sort);

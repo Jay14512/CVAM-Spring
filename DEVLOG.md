@@ -244,8 +244,10 @@ Today focused on wiring repository-driven business flows and stabilizing service
 Today was a focused cleanup pass on API error handling consistency.
 
 1. **Added Specific Custom Exceptions**:
-    * Introduced dedicated domain exceptions with hardcoded default messages to avoid repeating message literals across services.
-    * Updated constructor signatures to support no-arg usage (`throw new ...Exception();`) while still propagating the intended message.
+    * Introduced dedicated domain exceptions with hardcoded default messages to avoid repeating message literals across
+      services.
+    * Updated constructor signatures to support no-arg usage (`throw new ...Exception();`) while still propagating the
+      intended message.
 
 2. **Introduced Global Exception Handling**:
     * Added a centralized `GlobalExceptionHandler` using Spring advice annotations to map exceptions in one place.
@@ -258,19 +260,19 @@ Today was a focused cleanup pass on API error handling consistency.
 ### 🚀 Next Session — Pick Up Here
 
 1. **Connect Services to Controllers End-to-End**:
-   * Add/finish controller endpoints for the new doctor/staff/user registration workflows.
-   * Ensure request payloads map cleanly into DTOs/domain objects for onboarding operations.
+    * Add/finish controller endpoints for the new doctor/staff/user registration workflows.
+    * Ensure request payloads map cleanly into DTOs/domain objects for onboarding operations.
 
 2. **Harden Validation and Error Mapping**:
-   * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses
-     (`@ControllerAdvice` / structured error payloads).
-   * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce
-     accidental mismatch bugs.
+    * Replace generic `IllegalArgumentException` exposure paths with consistent API-level error responses
+      (`@ControllerAdvice` / structured error payloads).
+    * Normalize naming and casing for identifiers (`license`/`licence`, fiscal code, doctor ID fields) to reduce
+      accidental mismatch bugs.
 
 3. **Run Full API Flow Tests Against MySQL**:
-   * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile`
-     records.
-   * Confirm duplicate guards and collision checks behave correctly under repeated requests.
+    * Verify create/read/cancel flows for appointments with real persisted `User`, `CitizenProfile`, and `DoctorProfile`
+      records.
+    * Confirm duplicate guards and collision checks behave correctly under repeated requests.
 
 4. Wire any remaining domain exceptions into `GlobalExceptionHandler` with explicit status mappings.
 5. Confirm all onboarding endpoints return the same `ApiError` shape for validation/conflict/not-found paths.
@@ -292,7 +294,8 @@ Kept the session light and low-focus. Goal was to lay the groundwork for seed da
 2. **Stable Business Key Reference Strategy**:
     * Adopted `userFiscalCode` as the link reference inside doctor and staff JSON files instead of relying on
       auto-generated numeric DB IDs.
-    * `mock_doctors.json` format: `{ "userFiscalCode": "...", "medicalLicenseNumber": "...", "officePhoneNumber": "..." }`
+    * `mock_doctors.json` format:
+      `{ "userFiscalCode": "...", "medicalLicenseNumber": "...", "officePhoneNumber": "..." }`
     * This approach is DB-reset-safe and avoids insert-order fragility.
 
 3. **Placeholder `DataSeeder.java` Scaffolded**:
@@ -382,7 +385,8 @@ real JPA entity layer.
 4. **Jackson Version & Package Mismatch Resolved**:
     * Diagnosed a major confusion source: the project is using the newer Jackson 3 package set (`tools.jackson...`), not
       the older `com.fasterxml.jackson...` one.
-    * This explains why the `ObjectMapper` import and class resolution were failing even when the dependency was present.
+    * This explains why the `ObjectMapper` import and class resolution were failing even when the dependency was
+      present.
     * The correct import family is:
         * `tools.jackson.databind.ObjectMapper`
         * `tools.jackson.core.type.TypeReference`
@@ -403,5 +407,44 @@ real JPA entity layer.
 3. **Add duplicate guards** before each save (e.g., existing fiscal code, existing medical license, existing staff code,
    existing appointment ID).
 4. **Run the app to verify startup seeding works without throwing application-context startup errors**.
+
+---
+
+## Session 10 — August 14, 2026
+
+### 📌 Current State & Accomplishments
+
+Today focused on simplifying the citizen side of the domain model and preparing the app to move away from the redundant
+`CitizenProfile` layer.
+
+1. **Domain Model Simplification**:
+    * Re-evaluated the `User` vs. `CitizenProfile` split and confirmed that citizens are already represented by `User`.
+    * Decided that `CitizenProfile` is not adding real citizen-specific data for the current stage of the app.
+
+2. **Refactor Direction Locked In**:
+    * Chosen model for now:
+        * `User` = core person record
+        * `DoctorProfile` / `StaffProfile` = role-specific data
+        * `Appointment` links directly to `User` for the citizen side
+    * Recognized that citizen-specific behavior can be reintroduced later if the domain grows.
+
+3. **Appointment Flow Cleanup Started**:
+    * Removed `CitizenProfile` usage from controller/service flow.
+    * Reworked citizen appointment handling conceptually so appointments can be queried as:
+        * citizen appointments via `User`
+        * doctor appointments via `DoctorProfile`
+
+4. **Database Cleanup Planning**:
+    * Confirmed that the old `citizen_profiles` table must be dropped manually after removing any remaining FK
+      dependency from `appointments`.
+    * Verified that a clean compile no longer depends on the deleted citizen profile layer, while stale build artifacts
+      and docs may still mention it.
+
+### 🚀 Next Session — Pick Up Here
+
+1. Finish `DataSeeder` so it loads users, doctors, staff, and appointments from JSON instead of hardcoded demo objects.
+2. Connect appointment persistence fully to the database-backed flow in `AppointmentService`.
+3. Remove any leftover hardcoded mock appointment data from controller/service paths.
+4. Keep cleaning up stale docs/build artifacts that still mention `CitizenProfile`.
 
 ---

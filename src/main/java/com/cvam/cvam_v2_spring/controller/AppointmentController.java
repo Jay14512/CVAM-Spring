@@ -2,7 +2,6 @@ package com.cvam.cvam_v2_spring.controller;
 
 import com.cvam.cvam_v2_spring.dto.AppointmentRequest;
 import com.cvam.cvam_v2_spring.model.Appointment;
-import com.cvam.cvam_v2_spring.model.CitizenProfile;
 import com.cvam.cvam_v2_spring.model.DoctorProfile;
 import com.cvam.cvam_v2_spring.model.User;
 import com.cvam.cvam_v2_spring.service.AppointmentService;
@@ -34,7 +33,7 @@ public class AppointmentController {
                 "+3928974157",
                 LocalDate.of(1987, 9, 28)
         );
-        CitizenProfile citizen = new CitizenProfile(citizenUser);
+        User citizen = new User(citizenUser);
 
         //2. Create a User for the Doctor with their personal details
 
@@ -53,7 +52,7 @@ public class AppointmentController {
         if (appointmentService.getAppointments().isEmpty()) {
             appointmentService.bookAppointment(new Appointment(
                     "APPT-1001",
-                    citizen,
+                    citizenUser,
                     doctor,
                     LocalDateTime.of(2026, 8, 3, 10, 30),
                     "Pfizer"
@@ -76,7 +75,7 @@ public class AppointmentController {
                 "+3928974157",
                 LocalDate.of(1987, 9, 28)
         );
-        CitizenProfile citizen = new CitizenProfile(citizenUser);
+        User citizen = new User(citizenUser);
 
         User doctorUser = new User(
                 "Francesca",
@@ -91,7 +90,7 @@ public class AppointmentController {
         //3. This triggers the self-protecting constructor guards!
         Appointment cleanAppointment = new Appointment(
                 request.getAppointmentId(),
-                citizen,
+                citizenUser,
                 doctor,
                 request.getDateTime(),
                 request.getVaccineType()

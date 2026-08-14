@@ -31,8 +31,8 @@ public class Appointment {
 
     //LINK TO CITIZEN
     @ManyToOne(fetch = FetchType.LAZY)//Lazy loading is best practice for performance
-    @JoinColumn(name = "citizen_id", nullable = false)
-    private CitizenProfile citizen;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     //LINK TO DOCTOR
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,7 +50,7 @@ public class Appointment {
         //for JPA
     }
 
-    public Appointment(String appointmentId, CitizenProfile citizen, DoctorProfile doctor, LocalDateTime dateTime, String vaccineType) {
+    public Appointment(String appointmentId, User citizen, DoctorProfile doctor, LocalDateTime dateTime, String vaccineType) {
         //VALIDATION
         //Appointment ID
         if (appointmentId == null || appointmentId.isEmpty()) {
@@ -79,7 +79,7 @@ public class Appointment {
 
 
         this.appointmentId = appointmentId;
-        this.citizen = citizen;
+        this.user = user;
         this.doctor = doctor;
         this.dateTime = dateTime;
         this.vaccineType = vaccineType;
@@ -90,8 +90,8 @@ public class Appointment {
         return appointmentId;
     }
 
-    public CitizenProfile getCitizen() {
-        return citizen;
+    public User getUser() {
+        return user;
     }
 
     public DoctorProfile getDoctor() {

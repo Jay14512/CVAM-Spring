@@ -13,7 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     //Spring generates: SELECT * FROM users WHERE fiscal_code = ?
-    Optional<User> findByFiscalCode (String fiscalCode);
+    Optional <User> findUserByFiscalCode (String fiscalCode);
 
     //Spring generates: SELECT COUNT(*) > 0 FROM users WHERE email = ?
     boolean existsByEmail(String email);

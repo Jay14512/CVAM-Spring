@@ -72,7 +72,7 @@ String doctorLicense = appointment.getDoctor().getMedicalLicenseNumber();
         //Dynamically building database sort strategy based on the 'ascending' argument
         Sort sort = buildDynamicSort(ascending);
 
-        return appointmentRepository.findByCitizenUserFiscalCodeIgnoreCase(fiscalCode, sort);
+        return appointmentRepository.findByUserFiscalCodeIgnoreCase(fiscalCode, sort);
     }
 
 

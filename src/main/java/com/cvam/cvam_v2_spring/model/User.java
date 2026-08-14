@@ -77,6 +77,9 @@ public class User {
 
     }
 
+    public User(User citizenUser) {
+    }
+
     public Long getId() {
         return id;
     }
