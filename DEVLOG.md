@@ -445,6 +445,49 @@ Today focused on simplifying the citizen side of the domain model and preparing 
 1. Finish `DataSeeder` so it loads users, doctors, staff, and appointments from JSON instead of hardcoded demo objects.
 2. Connect appointment persistence fully to the database-backed flow in `AppointmentService`.
 3. Remove any leftover hardcoded mock appointment data from controller/service paths.
-4. Keep cleaning up stale docs/build artifacts that still mention `CitizenProfile`.
+
+---
+
+## Session 11 — August 16, 2026
+
+### 📌 Current State & Accomplishments
+
+Today focused on the final cleanup pass around `DataSeeder`, proper professional Java logging, and nullability
+correctness.
+
+1. **Seed Data Integrity Repaired**:
+    * Confirmed the real issue was not the seeder logic itself, but broken FK relationships in the mock seed inputs.
+    * Fixed the data alignment so doctor/staff records reference valid `User` fiscal codes before the application
+      starts.
+    * Validated that the app can initialize and seed users, doctors, staff, and appointments successfully once the mock
+      data matches the live entity graph.
+
+2. **Logging Standardized to SLF4J**:
+    * Replaced ad hoc debugging output with proper `Logger` + `LoggerFactory` usage in `DataSeeder`.
+    * Confirmed that `System.out.println` is for temporary manual debugging only and should not remain in production
+      code.
+    * Understood that `logpoint` is a debugger feature, not an application log mechanism; it is useful for runtime
+      inspection but not a permanent solution.
+
+3. **Nullability Warning Resolved at the Root**:
+    * Learned that IntelliJ `@NullMarked` warnings are not just cosmetic — they signal a contract mismatch in method
+      parameters.
+    * The correct fix is to mark required arguments as non-null (`@NotNull`, `@NonNull`, or equivalent), instead of
+      suppressing warnings blindly.
+    * This reflects the actual business reality: the data passed into the seeder and domain constructors is required and
+      should be treated as mandatory input.
+
+4. **Final Project Pattern Locked In**:
+    * The correct architecture is: JSON DTO → lookup valid parent entity by stable business key → validate duplicates →
+      construct JPA entity → save.
+    * This pattern scales cleanly and prevents the very data integrity issues that were originally blocking startup.
+
+### 🚀 Next Session — Pick Up Here
+
+1. Keep using SLF4J and parameterized logging everywhere instead of `System.out.println`.
+2. Continue annotating required parameters as non-null where the business logic requires them.
+3. Apply the same relationship-first seeding pattern to any future domain objects or mock datasets.
+4. Connect appointment persistence fully to the database-backed flow in `AppointmentService`.
+5. Remove any leftover hardcoded mock appointment data from controller/service paths.
 
 ---

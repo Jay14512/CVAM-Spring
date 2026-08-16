@@ -79,7 +79,7 @@ public class Appointment {
 
 
         this.appointmentId = appointmentId;
-        this.user = user;
+        this.user = citizen;
         this.doctor = doctor;
         this.dateTime = dateTime;
         this.vaccineType = vaccineType;

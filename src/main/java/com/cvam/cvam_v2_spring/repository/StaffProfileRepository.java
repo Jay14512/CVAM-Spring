@@ -20,5 +20,5 @@ public interface StaffProfileRepository extends JpaRepository<StaffProfile, Long
     List<StaffProfile> findByUserId(Long userId);
 
     //4. Find all staff members working under a specific Doctor's profile ID
-    List<StaffProfile> findByDoctorId(Long doctorId);
+    //List<StaffProfile> findByDoctorId(Long doctorId);
 }
