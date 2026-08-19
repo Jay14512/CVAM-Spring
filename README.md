@@ -1,108 +1,132 @@
-# Citizen Vaccine Appointment Manager (CVAM) — Spring Boot 2.0
+# Citizen Vaccine Appointment Manager (CVAM) — Spring Boot
 
-A modern, production-ready REST API built with Spring Boot to automate and manage vaccine appointment bookings. This
-iteration advances the initial core Java architecture into a scalable, multi-layered enterprise backend.
+Spring Boot project for modeling and managing vaccine appointments with a layered Java backend.
 
-> This project documents my hands-on transition from PHP to Java/Spring Boot. It is intentionally public to demonstrate
-> framework proficiency, architectural evolution, and software craftsmanship over time.
+> This repository documents my transition from PHP to Java and Spring Boot. I keep it public as a portfolio project so the progress, structure, and quality improvements are visible over time.
 
-## 📌 Project Status
+## Project Status
 
-- **Current Stage**: Active Development (Milestone 1 Complete)
-- **Architecture**: Three-Layer Architecture (`controller` ➡️ `service` ➡️ `repository`)
-- **Last Updated Milestone**: Spring Boot Migration & REST Layer Setup
+- Current stage: Active development
+- Focus: Domain modeling, booking rules, REST endpoints, and persistence work
+- Last updated milestone: Spring Boot migration and API foundation
 
-## 🛠️ What This Project Demonstrates
+## What This Project Demonstrates
 
-- **Spring Boot Ecosystem**: Native web container integration using `Spring Web` and automated system health metrics via
-  `Spring Boot Actuator`.
-- **Dependency Injection**: Loose coupling achieved through strict Constructor-based Dependency Injection
-  (`@RestController` linked to a managed `@Service` bean).
-- **Self-Protecting Domain Layer**: Bulletproof object graph architecture. Every domain model features final
-  immutability, zero setters, and strict validation guard clauses right inside the constructors.
-- **Convention over Configuration**: Utilization of the **Maven Wrapper (`mvnw`)** to isolate and standardize the
-  project runtime across different local environments.
-- **JSON Serialization Pipeline**: Automatic recursive object graph parsing using embedded Jackson providers.
+- OOP and domain modeling in Java (`User`, `Appointment`, `DoctorProfile`, `StaffProfile`)
+- Layered backend structure (`controller`, `service`, `repository`, `model`, `dto`, `exception`)
+- Constructor-based validation and custom runtime exceptions
+- REST API design with Spring Web
+- JPA-based repository structure for future persistence work
 
-## 🚀 Current Architecture & Features
+## Current Features
 
-### Project Package Layout
+- Domain models:
+  - `User`
+  - `Appointment`
+  - `DoctorProfile`
+  - `StaffProfile`
+  - `ShiftAssignment`
+- REST endpoints:
+  - `GET /api/appointments`
+  - `POST /api/appointments`
+- Service layer for booking appointments and applying business rules
+- Centralized exception handling with custom API error responses
+- Demo data seeding for local development
 
-Following strict Java singular-naming conventions:
+## In Progress / Next Steps
+
+- Replace demo booking data with fully persistent appointment flows
+- Expand validation for request payloads and domain rules
+- Add appointment lookup and cancellation operations
+- Improve test coverage for service and controller behavior
+- Clean up the API response structure for production use
+
+## Tech Stack
+
+- Java 21
+- Spring Boot 4.1.x
+- Spring Web
+- Spring Data JPA
+- Maven
+- MySQL connector
+
+## Project Structure
 
 ```text
-cvam-v2-spring/
-├── .mvn/                             <-- Isolated Maven Wrapper
-├── src/main/java/com/cvam/cvam_v2_spring/
-│   ├── controller/                   <-- REST Gateways (@RestController)
-│   │   └── AppointmentController.java
-│   ├── service/                      <-- Business Engine Logic (@Service)
-│   │   └── AppointmentService.java
-│   ├── model/                        <-- Self-Protecting Immutable Domain Models
-│   │   ├── User.java (Abstract)
-│   │   ├── Citizen.java / Doctor.java / Staff.java
-│   │   └── Appointment.java
-│   └── exception/                    <-- Custom Domain Runtime Exceptions
-├── pom.xml                           <-- Maven Infrastructure Map
-└── LICENSE
+src/main/java/com/cvam/cvam_v2_spring/
+  CvamV2SpringApplication.java
+  controller/
+    AppointmentController.java
+  dto/
+    AppointmentRequest.java
+    AppointmentImportDto.java
+    DoctorImportDto.java
+    StaffImportDto.java
+    UserImportDto.java
+  exception/
+    ApiError.java
+    AppointmentConflictException.java
+    AppointmentNotFoundException.java
+    EmailAlreadyRegisteredException.java
+    FiscalCodeAlreadyRegisteredException.java
+    GlobalExceptionHandler.java
+    InvalidAppointmentException.java
+  model/
+    Appointment.java
+    DoctorProfile.java
+    StaffProfile.java
+    ShiftAssignment.java
+    User.java
+  repository/
+    AppointmentRepository.java
+    DoctorProfileRepository.java
+    StaffProfileRepository.java
+    ShiftAssignmentRepository.java
+    UserRepository.java
+  service/
+    AppointmentService.java
+    DoctorService.java
+    StaffService.java
+    UserService.java
+  util/
+    DataSeeder.java
 ```
 
-### Active Endpoints
-
-* **`GET /actuator/health`** — Core system sanity and health monitoring status.
-* **`GET /api/appointments`** — Retrieves an unmodifiable stream of all registered appointments.
-
-## 📈 In Progress / Next Steps
-
-- **Dynamic Booking (`POST /api/appointments`)**: Unlocking interactive payloads utilizing web-inbound `@RequestBody`
-  streams mapped directly into our validation layer.
-- **Secure Persistence Layer**: Migrating from an ephemeral in-memory storage matrix to a secure, local MySQL database
-  via Spring Data JPA.
-- **Secrets Management**: Isolating database credentials strictly within regional IntelliJ runtime environment variables
-  (`${DB_USERNAME}`) to prevent repository leaks.
-
-## 💻 Tech Stack
-
-- **Language**: Java 21
-- **Framework**: Spring Boot 3.4.x (Web, Actuator)
-- **Build Automation**: Maven (via Maven Wrapper)
-
-## 🏎️ How To Run
+## How To Run
 
 ### Prerequisites
 
-* **JDK 21** installed locally.
-* You **do not** need a global Maven installation; the project handles its own engine files automatically.
+- JDK 21
+- Maven is optional because the project includes the Maven Wrapper
 
-### Running the Live Server
+### Run from project root
 
-Open your terminal at the root directory of the project and execute:
+```bash
+./mvnw spring-boot:run
+```
 
-**Windows (Command Prompt / PowerShell)**:
+On Windows:
 
 ```cmd
 .\mvnw.cmd spring-boot:run
 ```
 
-**macOS / Linux**:
+Then open `http://localhost:8080/api/appointments`.
 
-```bash
-chmod +x mvnw
-./mvnw spring-boot:run
-```
+## Why This Repo Is Public Early
 
-Once the terminal text logs confirm that the integrated Tomcat engine has successfully mounted on port `8080`, navigate
-to `http://localhost:8080/api/appointments` inside your browser to view the active payload stream.
+I keep this repository public to show how the project evolves from a learning backend into a more complete Java application. The goal is to make the structure, design choices, and feature growth easy to follow as the codebase matures.
 
-## 📂 Portfolio Disclosure
+## Future Direction
 
-I maintain this repository publicly to visually map my development trajectory from a procedural framework mindset to
-enterprise Java engineering. Key focus areas highlighted in this codebase include:
+The long-term goal is to turn this into a portfolio-ready appointment management API with real persistence, stronger validation, and cleaner workflows around booking, cancellation, and user management. I want the project to show steady progress from a simple learning exercise into a well-structured Spring backend.
 
-* Strict structural layer segregation (decoupling the web engine from the business core).
-* Comprehensive error defense layers (never allowing invalid system state mutations).
-* Clean code consistency (IDE warning mitigation, descriptive naming structures).
+## Notes
 
-## 📄 License
+- This project still includes development/demo behavior in some places.
+- It is a learning and portfolio project, not production software.
+- Database credentials are supplied through IntelliJ run configuration environment variables, not committed files.
 
-Licensed under the MIT License. See the `LICENSE` file for details.
+## License
+
+Licensed under the MIT License. See `LICENSE`.
